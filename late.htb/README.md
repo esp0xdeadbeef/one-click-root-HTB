@@ -4,8 +4,8 @@
 late.htb
 
 # hosts
-late.htb 
-image.late.htb # vuln for ssti
+- late.htb 
+- image.late.htb # vuln for ssti
 
 
 # special setting:
