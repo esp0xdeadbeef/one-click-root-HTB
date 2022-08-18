@@ -45,7 +45,7 @@ def get_img_text(text, additional_data):
         headers=headers,
         files=files,
         proxies={
-            'http': 'http://127.0.0.1:8080'
+            # 'http': 'http://127.0.0.1:8080'
         }
     )
     return r.text.split('>', 1)[-1].rsplit('<')[0]
